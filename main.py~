@@ -3,15 +3,15 @@ import psycopg2
 import sys
 import pprint
 import constants
-import confWriter
 
 # run the program as python main.py queries\select.sql
 
 # checks for arguments
-if len(sys.argv) != 2:
-    raise BaseException("FileName not given")
+if len(sys.argv) != 3:
+    raise BaseException("FileName and password not given")
 
 str_file_loc = sys.argv[1]
+postgresPassword = sys.argv[2]
 
 # print("Reading SQL from file: " + str_file_loc)
 try:
@@ -44,7 +44,5 @@ try:
     print(dict_query_plan)
     print(dict_query_plan['Plan'])
     print(dict_query_plan['Plan']['Node Type'])
-    confWriter.BaseWriter('config.txt',dict_query_plan['Plan']['Node Type'],dict_query_plan)
-
 except BaseException as e:
     print(str(e))
