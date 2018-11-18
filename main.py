@@ -26,25 +26,23 @@ except FileNotFoundError as e:
 # builds the connection string
 str_conn_string = constants.DB_CONN_STRING % (constants.DB_HOST, constants.DB_NAME, constants.DB_USER_NAME, constants.DB_PASSWORD)
 
-try:
-    # get a connection, if a connect cannot be made an exception will be raised here
-    obj_conn = psycopg2.connect(str_conn_string)
+# try:
+# get a connection, if a connect cannot be made an exception will be raised here
+obj_conn = psycopg2.connect(str_conn_string)
 
-    # conn.cursor will return a cursor object, you can use this cursor to perform queries
-    obj_cursor = obj_conn.cursor()
+# conn.cursor will return a cursor object, you can use this cursor to perform queries
+obj_cursor = obj_conn.cursor()
 
-    # execute our Query
-    obj_cursor.execute("EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
+# execute our Query
+obj_cursor.execute("EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
 
 
-    t_query_plan = obj_cursor.fetchall()
+t_query_plan = obj_cursor.fetchall()
 
-    dict_query_plan = dict(t_query_plan[0][0][0])
+dict_query_plan = dict(t_query_plan[0][0][0])
 
-    print(dict_query_plan)
-    print(dict_query_plan['Plan'])
-    print(dict_query_plan['Plan']['Node Type'])
-    confWriter.BaseWriter('config.txt',dict_query_plan['Plan']['Node Type'],dict_query_plan)
+# print(dict_query_plan)
+confWriter.BaseWriter('config.txt',dict_query_plan['Plan']['Node Type'],dict_query_plan)
 
-except BaseException as e:
-    print(str(e))
+# except BaseException as e:
+#     print(str(e))
