@@ -18,11 +18,11 @@ def ScanWriter(dict_query_plan,config_dict):
 	scan_params = {
 		'node_name': node_name,
 
-		'file_type': config_dict['fileType'],
+		'file_type': config_dict['file_type'],
 
 		'file_name': config_dict['file'],
 
-		'schema': config_dict['scanSchema']
+		'schema': config_dict['scan_schema']
 	}
 
 	conf += constants.SCAN_NODE_TEMPLATE.format(**scan_params)
