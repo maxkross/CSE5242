@@ -5,6 +5,8 @@ DB_PASSWORD = 'postgre'
 POSTGRE_LOC = 'G:\\PostgreSQL\\11\\bin\\'
 DB_CONN_STRING = "host='%s' dbname='%s' user='%s' password='%s'"
 
+
+
 JOIN_NODE_TEMPLATE = '''
 {node_name}:
 {{
@@ -52,6 +54,7 @@ SCAN_NODE_TEMPLATE = '''
 
     filetype = "{file_type}";
     file = "{file_name}";
-    schema = ({schema});
+    scanSchema = ( {schema} );
 }};
+
 '''

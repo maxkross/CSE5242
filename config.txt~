@@ -2,4 +2,3 @@ path: /home/pythia/pythia/drivers/sample_queries/data/
 confName: pg_select_query
 fileType: text
 file: pg_lineitem.tbl
-
