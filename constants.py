@@ -17,17 +17,10 @@ JOIN_NODE_TEMPLATE = '''
 {node_name}:
 {{
     type = "{hashtype}";
-    hashtable = "{hashmethod}";
 
     hash:
     {{
-        fn = "bytes";
-        buckets = 1048576;
-    }};
-
-    hash2:
-    {{
-        fn = "willis";
+        fn = "{hashmethod}";
         buckets = 1048576;
     }};
 
@@ -36,21 +29,8 @@ JOIN_NODE_TEMPLATE = '''
     probejattr = {probe_attr};
 
     projection = ({columns});
-
     {add}
-
 }};
-'''
-JOIN_TEMPLATE = '''
-    name: "{node_name}";
-    probe:
-    {{
-        name: "{probe_node_name}";
-    }};
-    build:
-    {{
-        name: "{build_node_name}";
-    }};
 '''
 
 SCAN_NODE_TEMPLATE = '''
@@ -61,5 +41,7 @@ SCAN_NODE_TEMPLATE = '''
     filetype = "{file_type}";
     file = "{file_name}";
     scanSchema = ( {schema} );
+    projection = ({columns});
+
 }};
 '''

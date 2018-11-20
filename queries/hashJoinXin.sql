@@ -1,4 +1,3 @@
-SELECT /*+USE_HASH("order")*/ l_orderkey
-FROM   "lineitem" INNER JOIN "orders"
-ON l_orderkey = o_orderkey;
-
+SELECT *
+FROM lineitem, iteminfo, orders
+WHERE l_partkey = i_partkey and l_orderkey = o_orderkey;
