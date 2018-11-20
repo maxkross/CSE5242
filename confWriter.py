@@ -68,24 +68,22 @@ def GeneralWriter(dict_query_plan):
 
 #Writes out the general structure of the file
 def BaseWriter(configFileName, dict_query_plan):
-	configDict = {}
+	config_dict = {}
 	operatorTree = tree.Node('treeroot')
 	with open(configFileName) as configFile:
 		for line in configFile:
 			key, value = line.split(":")
-			configDict[key.strip()] = value.strip()
-	confName = configDict['confName']+'.conf'
-	confFile = open(confName,'w')
-	confFile.write('path = \"'+configDict['path']+'\";\n')
-	confFile.write('buffsize = 1048576;\n\n')
+			config_dict[key.strip()] = value.strip()
+	conf_name = config_dict['conf_name']+'.conf'
+	conf_file = open(conf_name,'w')
+	conf_file.write('path = \"'+config_dict['path']+'\";\n')
+	conf_file.write('buffsize = 1048576;\n\n')
 
 	root_node = {}
 	tree_node, conf_nodes = GeneralWriter(dict_query_plan)
 	root_node["root"] = tree_node
-	confFile.write(conf_nodes)
-	confFile.write(libconf.dumps(root_node))
-	confFile.close()
+	conf_file.write(conf_nodes)
+	conf_file.write(libconf.dumps(root_node))
+	conf_file.close()
 
-
-	
 

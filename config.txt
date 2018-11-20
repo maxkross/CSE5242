@@ -1,4 +1,5 @@
 path: /home/pythia/pythia/drivers/sample_queries/data/
-confName: pg_select_query
-fileType: text
+conf_name: pg_select_query
+file_type: text
 file: pg_lineitem.tbl
+scan_schema: "long", "long", "dec" 
