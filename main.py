@@ -4,6 +4,7 @@ import sys
 import pprint
 import constants
 import confWriter
+import libconf
 
 # run the program as python main.py queries\select.sql
 
@@ -41,8 +42,8 @@ t_query_plan = obj_cursor.fetchall()
 
 dict_query_plan = dict(t_query_plan[0][0][0])
 
-# print(dict_query_plan)
-confWriter.BaseWriter('config.txt',dict_query_plan['Plan']['Node Type'],dict_query_plan)
+print(libconf.dumps(dict_query_plan))
+confWriter.BaseWriter('config.txt', dict_query_plan["Plan"])
 
 # except BaseException as e:
 #     print(str(e))
