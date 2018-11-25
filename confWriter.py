@@ -21,7 +21,8 @@ def ScanWriter(dict_query_plan):
 		'node_name': scan_node_name,
 		'file_type': config_dict[dict_query_plan['Relation Name']+ '_type'],
 		'file_name': config_dict[dict_query_plan['Relation Name']],
-		'schema': config_dict[dict_query_plan['Relation Name']+ '_schema']
+		'schema': config_dict[dict_query_plan['Relation Name']+ '_schema'],
+		'columns': dict_query_plan["Output"]
 	}
 	
 	conf += constants.SCAN_NODE_TEMPLATE.format(**dict_scan_param)
@@ -31,7 +32,6 @@ def HashJoinWriter(dict_query_plan):
 	
 	global join_counter
 	tree_node = {}
-	conf = ''
 
 	join_node_name = 'join'+str(join_counter)
 	join_counter += 1
@@ -47,12 +47,17 @@ def HashJoinWriter(dict_query_plan):
 		'add': ''
 	}
 
-	conf = constants.JOIN_NODE_TEMPLATE.format(**dict_hash_params)
 	
 	tree_node['name'] = join_node_name
 	tree_node['probe'], probe_conf_nodes = GeneralWriter(dict_query_plan['Plans'][0])
 	tree_node['build'], build_conf_nodes = GeneralWriter(dict_query_plan['Plans'][1])
 	
+	attrs = dict_query_plan['Hash Cond'][1:-1].split(" = ")
+	dict_hash_params['build_attr'] = attrs[0]
+	dict_hash_params['probe_attr'] = attrs[1]
+	
+	conf = constants.JOIN_NODE_TEMPLATE.format(**dict_hash_params)
+			
 	conf = conf + probe_conf_nodes + build_conf_nodes	
 
 	return tree_node, conf
