@@ -30,6 +30,9 @@ JOIN_NODE_TEMPLATE = '''
 
     projection = ({columns});
     {add}
+
+    theadgroups = ( [0] );
+    allocpolicy = "striped";
 }};
 '''
 

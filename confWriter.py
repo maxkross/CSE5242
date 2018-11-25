@@ -55,10 +55,11 @@ def HashJoinWriter(dict_query_plan):
 	str_projection = []
 	for str_col in dict_query_plan["Output"]:
 		str_proj_mapping = ''
-		print(dict_query_plan['Plans'][0])
-		if str_col.split('.')[0] == dict_query_plan['Plans'][0]['Relation Name']:
+		str_relation_name = str_col.split('.')[0].replace('"', '')
+		
+		if str_relation_name == dict_query_plan['Plans'][0]['Relation Name']:
 			str_proj_mapping = 'P$'+str(dict_cols[str_col.replace('"', '')])
-		elif str_col.split('.')[1] == dict_query_plan['Plans'][1]['Relation Name']:
+		elif str_relation_name == dict_query_plan['Plans'][1]['Plans'][0]['Relation Name']:
 			str_proj_mapping = 'B$'+str(dict_cols[str_col.replace('"', '')])
 		str_projection.append('"'+str_proj_mapping+'"')
 
