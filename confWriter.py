@@ -1,14 +1,15 @@
 import libconf
 import tree
 import constants
-import json
+import dbconn
 scan_counter = 0
 join_counter = 0
-config_dict = {}
+dict_config = {}
+dict_cols = {}
 
 def ScanWriter(dict_query_plan):
 	
-	global scan_counter, config_dict
+	global scan_counter, dict_config, dict_cols
 	tree_node = {}
 	conf = ''
 	
@@ -16,13 +17,24 @@ def ScanWriter(dict_query_plan):
 	tree_node['name'] = scan_node_name
 	scan_counter += 1
 
+	obj_conn = dbconn.getDBConn()
+
+	t_records = dbconn.executeSelect(obj_conn, constants.SQL_COLUMN_NUMBER.format(tables = "'"+dict_query_plan['Relation Name']+"'"))
+
+	dict_col = dict((dict_query_plan['Relation Name']+'.'+x, y) for x, y in t_records)
+	dict_cols = {**dict_cols, **dict_col}
+
+	str_projection = []
+	for str_col in dict_query_plan["Output"]:
+		str_projection.append(str(dict_col[str_col.replace('"', '')]))
+
 	
 	dict_scan_param = {
 		'node_name': scan_node_name,
-		'file_type': config_dict[dict_query_plan['Relation Name']+ '_type'],
-		'file_name': config_dict[dict_query_plan['Relation Name']],
-		'schema': config_dict[dict_query_plan['Relation Name']+ '_schema'],
-		'columns': dict_query_plan["Output"]
+		'file_type': dict_config[dict_query_plan['Relation Name']+ '_type'],
+		'file_name': dict_config[dict_query_plan['Relation Name']],
+		'schema': dict_config[dict_query_plan['Relation Name']+ '_schema'],
+		'columns': ",".join(str_projection)
 	}
 	
 	conf += constants.SCAN_NODE_TEMPLATE.format(**dict_scan_param)
@@ -30,31 +42,41 @@ def ScanWriter(dict_query_plan):
 
 def HashJoinWriter(dict_query_plan):
 	
-	global join_counter
+	global join_counter, dict_cols
 	tree_node = {}
 
 	join_node_name = 'join'+str(join_counter)
 	join_counter += 1
 
-	dict_hash_params = {
-		'node_name': join_node_name,
-		'hashtype': 'hash join',
-		'hashmethod': 'modulo',
-		'tup_per_bucket':4,
-		'build_attr':0,
-		'probe_attr':0,
-		'columns': dict_query_plan["Output"],
-		'add': ''
-	}
-
-	
 	tree_node['name'] = join_node_name
 	tree_node['probe'], probe_conf_nodes = GeneralWriter(dict_query_plan['Plans'][0])
 	tree_node['build'], build_conf_nodes = GeneralWriter(dict_query_plan['Plans'][1])
 	
+	str_projection = []
+	for str_col in dict_query_plan["Output"]:
+		str_proj_mapping = ''
+		print(dict_query_plan['Plans'][0])
+		if str_col.split('.')[0] == dict_query_plan['Plans'][0]['Relation Name']:
+			str_proj_mapping = 'P$'+str(dict_cols[str_col.replace('"', '')])
+		elif str_col.split('.')[1] == dict_query_plan['Plans'][1]['Relation Name']:
+			str_proj_mapping = 'B$'+str(dict_cols[str_col.replace('"', '')])
+		str_projection.append('"'+str_proj_mapping+'"')
+
+	dict_hash_params = {
+		'node_name': join_node_name,
+		'hashtype': 'hashjoin',
+		'hashmethod': 'modulo',
+		'tup_per_bucket':4,
+		'build_attr':0,
+		'probe_attr':0,
+		'columns': ",".join(str_projection),
+		'add': ''
+	}
+	
+	
 	attrs = dict_query_plan['Hash Cond'][1:-1].split(" = ")
-	dict_hash_params['build_attr'] = attrs[0]
-	dict_hash_params['probe_attr'] = attrs[1]
+	dict_hash_params['build_attr'] = dict_cols[attrs[0].replace('"', '')]
+	dict_hash_params['probe_attr'] = dict_cols[attrs[1].replace('"', '')]
 	
 	conf = constants.JOIN_NODE_TEMPLATE.format(**dict_hash_params)
 			
@@ -76,18 +98,18 @@ def GeneralWriter(dict_query_plan):
 
 #Writes out the general structure of the file
 def BaseWriter(configFileName, dict_query_plan):
-	global config_dict
+	global dict_config
 
 	# read user conf file
 	with open(configFileName) as configFile:
 		for line in configFile:
 			key, value = line.split(":")
-			config_dict[key.strip()] = value.strip()
+			dict_config[key.strip()] = value.strip()
 
 	# write basic info to pythia conf file
-	conf_name = config_dict['conf_name']+'.conf'
+	conf_name = dict_config['conf_name']+'.conf'
 	conf_file = open(conf_name,'w')
-	conf_file.write('path = \"'+config_dict['path']+'\";\n')
+	conf_file.write('path = \"'+dict_config['path']+'\";\n')
 	conf_file.write('buffsize = 1048576;\n\n')
 
 	root_node = {}

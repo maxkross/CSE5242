@@ -44,3 +44,14 @@ SCAN_NODE_TEMPLATE = '''
     projection = ({columns});
 }};
 '''
+
+
+SQL_COLUMN_NUMBER = '''
+select 
+	"column_name", 
+	row_number() OVER( partition by "table_name"  order by "ordinal_position") -1 as "column_number"
+from 
+	"information_schema"."columns"
+where 
+	"table_name" IN  ({tables});
+'''

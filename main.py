@@ -1,6 +1,5 @@
 import sys
-import psycopg2
-import sys
+import dbconn
 import pprint
 import constants
 import confWriter
@@ -24,21 +23,10 @@ try:
 except FileNotFoundError as e:
     print('File not found at the given location')
  
-# builds the connection string
-str_conn_string = constants.DB_CONN_STRING % (constants.DB_HOST, constants.DB_NAME, constants.DB_USER_NAME, constants.DB_PASSWORD)
 
-# try:
-# get a connection, if a connect cannot be made an exception will be raised here
-obj_conn = psycopg2.connect(str_conn_string)
+obj_conn = dbconn.getDBConn()
 
-# conn.cursor will return a cursor object, you can use this cursor to perform queries
-obj_cursor = obj_conn.cursor()
-
-# execute our Query
-obj_cursor.execute("EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
-
-
-t_query_plan = obj_cursor.fetchall()
+t_query_plan = dbconn.executeSelect(obj_conn, "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
 
 dict_query_plan = dict(t_query_plan[0][0][0])
 
