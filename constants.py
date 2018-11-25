@@ -5,10 +5,10 @@
 #POSTGRE_LOC = 'G:\\PostgreSQL\\11\\bin\\'
 #DB_CONN_STRING = "host='%s' dbname='%s' user='%s' password='%s'"
 
-DB_NAME = 'db'
+DB_NAME = 'pg_pythia'
 DB_HOST = 'localhost'
 DB_USER_NAME = 'postgres'
-DB_PASSWORD = 'pythia'
+DB_PASSWORD = 'postgre'
 DB_CONN_STRING = "host='%s' dbname='%s' user='%s' password='%s'"
 
 
@@ -60,6 +60,6 @@ SCAN_NODE_TEMPLATE = '''
 
     filetype = "{file_type}";
     file = "{file_name}";
-    scanSchema = ( {schema} );
+    schema = ( {schema} );
 }};
 '''

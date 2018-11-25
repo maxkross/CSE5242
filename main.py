@@ -42,7 +42,7 @@ t_query_plan = obj_cursor.fetchall()
 
 dict_query_plan = dict(t_query_plan[0][0][0])
 
-print(libconf.dumps(dict_query_plan))
+# print(libconf.dumps(dict_query_plan))
 confWriter.BaseWriter('config.txt', dict_query_plan["Plan"])
 
 # except BaseException as e:

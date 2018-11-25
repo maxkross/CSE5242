@@ -1,12 +1,14 @@
 import libconf
 import tree
 import constants
+import json
 scan_counter = 0
 join_counter = 0
+config_dict = {}
 
 def ScanWriter(dict_query_plan):
 	
-	global scan_counter	
+	global scan_counter, config_dict
 	tree_node = {}
 	conf = ''
 	
@@ -14,11 +16,12 @@ def ScanWriter(dict_query_plan):
 	tree_node['name'] = scan_node_name
 	scan_counter += 1
 
+	
 	dict_scan_param = {
 		'node_name': scan_node_name,
-		'file_type': 'text',
-		'file_name': dict_query_plan['Relation Name'],
-		'schema': 0
+		'file_type': config_dict[dict_query_plan['Relation Name']+ '_type'],
+		'file_name': config_dict[dict_query_plan['Relation Name']],
+		'schema': config_dict[dict_query_plan['Relation Name']+ '_schema']
 	}
 	
 	conf += constants.SCAN_NODE_TEMPLATE.format(**dict_scan_param)
@@ -68,12 +71,15 @@ def GeneralWriter(dict_query_plan):
 
 #Writes out the general structure of the file
 def BaseWriter(configFileName, dict_query_plan):
-	config_dict = {}
-	operatorTree = tree.Node('treeroot')
+	global config_dict
+
+	# read user conf file
 	with open(configFileName) as configFile:
 		for line in configFile:
 			key, value = line.split(":")
 			config_dict[key.strip()] = value.strip()
+
+	# write basic info to pythia conf file
 	conf_name = config_dict['conf_name']+'.conf'
 	conf_file = open(conf_name,'w')
 	conf_file.write('path = \"'+config_dict['path']+'\";\n')
@@ -81,9 +87,10 @@ def BaseWriter(configFileName, dict_query_plan):
 
 	root_node = {}
 	tree_node, conf_nodes = GeneralWriter(dict_query_plan)
-	root_node["root"] = tree_node
+	
+	root_node["treeroot"] = tree_node
 	conf_file.write(conf_nodes)
-	conf_file.write(libconf.dumps(root_node))
+	conf_file.write(libconf.dumps(root_node).replace(' =', ':'))
 	conf_file.close()
 
 
