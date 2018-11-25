@@ -1,4 +1,4 @@
-path: /home/pythia/pythia/drivers/sample_queries/data/
+path: sample_queries/data/
 conf_name: pg_select_query
 order_type: text
 order: pg_order.tbl
