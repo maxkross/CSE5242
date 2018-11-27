@@ -58,3 +58,14 @@ from
 where 
 	"table_name" IN  ({tables});
 '''
+
+
+FILTER_NODE_TEMPLATE = '''
+{node_name}:
+{{
+    type = "filter";
+    field = {column};
+    op = "{operator}";
+    value = "{value}";
+}}
+'''

@@ -16,7 +16,7 @@ def executeSelect(obj_conn, str_query):
 
     # execute our Query
     obj_cursor.execute(str_query)
-
+    
     t_output = obj_cursor.fetchall()
 
     return t_output

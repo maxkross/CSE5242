@@ -4,12 +4,13 @@ import constants
 import dbconn
 scan_counter = 0
 join_counter = 0
+counter = 0
 dict_config = {}
 dict_cols = {}
 
 def ScanWriter(dict_query_plan):
 	
-	global scan_counter, dict_config, dict_cols
+	global scan_counter, dict_config, dict_cols, counter
 	tree_node = {}
 	conf = ''
 	
@@ -28,7 +29,9 @@ def ScanWriter(dict_query_plan):
 	for str_col in dict_query_plan["Output"]:
 		str_projection.append(str(dict_col[str_col.replace('"', '')]))
 
-	
+	if "Filter" in dict_query_plan:
+		tree_node, conf=FilterWriter(dict_query_plan["Filter"], tree_node)
+
 	dict_scan_param = {
 		'node_name': scan_node_name,
 		'file_type': dict_config[dict_query_plan['Relation Name']+ '_type'],
@@ -38,7 +41,34 @@ def ScanWriter(dict_query_plan):
 	}
 	
 	conf += constants.SCAN_NODE_TEMPLATE.format(**dict_scan_param)
+	# print(tree_node)
 	return tree_node, conf
+
+def FilterWriter(str_filter_conditions, dict_scan_node):
+	global counter
+	str_filter_conditions = str_filter_conditions[1:-1]
+	arr_conditions = str_filter_conditions.split('AND')
+	
+	if len(arr_conditions) == 1:
+		node_name = 'filter' + str(counter)
+		counter += 1 
+		condition = arr_conditions[0].replace('"', '')
+		tokens =condition.split(' ')
+		dict_filter_params = {
+			'node_name': node_name,
+			'column': dict_cols[tokens[0]],
+			'operator': tokens[1],
+			'value': tokens[2]
+		}
+		conf = constants.FILTER_NODE_TEMPLATE.format(**dict_filter_params)
+		
+		return {
+			'name': node_name,
+			'input': dict_scan_node
+		}, conf
+
+	else:
+		pass
 
 def HashJoinWriter(dict_query_plan):
 	
@@ -93,6 +123,8 @@ def GeneralWriter(dict_query_plan):
 		tree_node, conf_nodes = HashJoinWriter(dict_query_plan)
 	elif plan_type == "Hash":
 		tree_node, conf_nodes = GeneralWriter(dict_query_plan["Plans"][0])
+	else:
+		raise BaseException(dict_query_plan["Node Type"] + " is not supported yet") 
 	return tree_node, conf_nodes	
 		
 
