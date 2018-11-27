@@ -50,8 +50,10 @@ def FilterWriter(str_filter_conditions, dict_scan_node):
 	arr_conditions = str_filter_conditions.split('AND')
 	
 	if len(arr_conditions) == 1:
-		node_name = 'filter' + str(counter)
+		tree_node = {}
+		node_name = 'filter' + str(counter)		
 		counter += 1 
+
 		condition = arr_conditions[0].replace('"', '')
 		tokens =condition.split(' ')
 		dict_filter_params = {
@@ -62,10 +64,9 @@ def FilterWriter(str_filter_conditions, dict_scan_node):
 		}
 		conf = constants.FILTER_NODE_TEMPLATE.format(**dict_filter_params)
 		
-		return {
-			'name': node_name,
-			'input': dict_scan_node
-		}, conf
+		tree_node["name"] = node_name
+		tree_node["input"] = dict_scan_node
+		return tree_node, conf
 
 	else:
 		pass

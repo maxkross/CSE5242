@@ -67,5 +67,5 @@ FILTER_NODE_TEMPLATE = '''
     field = {column};
     op = "{operator}";
     value = "{value}";
-}}
+}};
 '''
