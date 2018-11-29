@@ -4,6 +4,7 @@ import pprint
 import constants
 import confWriter
 import libconf
+import json
 
 # run the program as python main.py queries\select.sql
 
@@ -27,7 +28,11 @@ except FileNotFoundError as e:
 obj_conn = dbconn.getDBConn()
 
 # fetches the query plan
+# print("EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
+
+dbconn.disableMerge(obj_conn)
 t_query_plan = dbconn.executeSelect(obj_conn, "EXPLAIN (ANALYZE, VERBOSE, FORMAT JSON) " + str_query)
+
 dict_query_plan = dict(t_query_plan[0][0][0])
 print('Fetched Query plan from PostgreSQL')
 
