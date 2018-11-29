@@ -13,7 +13,7 @@ if len(sys.argv) != 2:
 
 str_file_loc = sys.argv[1]
 
-# print("Reading SQL from file: " + str_file_loc)
+print("Reading SQL from file: " + str_file_loc)
 try:
     # reads the query from the file
     str_query = ''
@@ -23,15 +23,17 @@ try:
 except FileNotFoundError as e:
     print('File not found at the given location')
  
-
+# connects to PostgreSQL
 obj_conn = dbconn.getDBConn()
 
-t_query_plan = dbconn.executeSelect(obj_conn, "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " + str_query)
-
+# fetches the query plan
+t_query_plan = dbconn.executeSelect(obj_conn, "EXPLAIN (ANALYZE, VERBOSE, FORMAT JSON) " + str_query)
 dict_query_plan = dict(t_query_plan[0][0][0])
+print('Fetched Query plan from PostgreSQL')
 
-# print(libconf.dumps(dict_query_plan))
+# triggers the conf file writer
 confWriter.BaseWriter('config.txt', dict_query_plan["Plan"])
+print('Conf file generated')
 
 # except BaseException as e:
 #     print(str(e))

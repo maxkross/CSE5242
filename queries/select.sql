@@ -1,1 +1,1 @@
-SELECT * FROM lineitem;
+SELECT l_partkey, l_price FROM lineitem where l_partkey = 2;

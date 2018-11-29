@@ -1,5 +1,5 @@
 path: sample_queries/data/
-conf_name: pg_select_query
+conf_name: pg_hash_query
 order_type: text
 order: pg_order.tbl
 order_schema: "long", "long"
