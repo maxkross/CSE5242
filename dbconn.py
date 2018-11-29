@@ -14,7 +14,7 @@ def disableMerge(obj_conn):
 	obj_cursor = obj_conn.cursor()
 
 	obj_cursor.execute("set enable_mergejoin=off;")
-
+	obj_cursor.execute("set enable_nestloop=off;")
 
 def executeSelect(obj_conn, str_query):
     # conn.cursor will return a cursor object, you can use this cursor to perform queries
