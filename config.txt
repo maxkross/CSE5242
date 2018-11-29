@@ -6,3 +6,6 @@ order_schema: "long", "long"
 lineitem_type: text
 lineitem: pg_lineitem.tbl
 lineitem_schema: "long", "long", "dec" 
+iteminfo_type: text
+iteminfo: pg_iteminfo.tbl
+iteminfo_schema: "long", "long"

@@ -79,39 +79,36 @@ def HashJoinWriter(dict_query_plan):
 	join_node_name = 'join'+str(join_counter)
 	join_counter += 1
 
+	probe = dict_query_plan['Plans'][0]	
+	build = dict_query_plan['Plans'][1]
+
 	tree_node['name'] = join_node_name
-	tree_node['probe'], probe_conf_nodes = GeneralWriter(dict_query_plan['Plans'][0])
-	tree_node['build'], build_conf_nodes = GeneralWriter(dict_query_plan['Plans'][1])
+	tree_node['probe'], probe_conf_nodes = GeneralWriter(probe)
+	tree_node['build'], build_conf_nodes = GeneralWriter(build)
 	
 	str_projection = []
 	for str_col in dict_query_plan["Output"]:
-		str_proj_mapping = ''
-		str_relation_name = str_col.split('.')[0].replace('"', '')
-		
-		if str_relation_name == dict_query_plan['Plans'][0]['Relation Name']:
-			str_proj_mapping = 'P$'+str(dict_cols[str_col.replace('"', '')])
-		elif str_relation_name == dict_query_plan['Plans'][1]['Plans'][0]['Relation Name']:
-			str_proj_mapping = 'B$'+str(dict_cols[str_col.replace('"', '')])
-		str_projection.append('"'+str_proj_mapping+'"')
-
+		if str_col in probe['Output']:
+			index = probe['Output'].index(str_col)
+			str_projection.append('"P$' + str(index) + '"')
+		else:
+			index = build['Output'].index(str_col)
+			str_projection.append('"B$'+ str(index) + '"')
+	
+	join_attrs = dict_query_plan["Hash Cond"][1:-1].split(" = ")
+	build_join = build['Output'].index(join_attrs[1])
+	probe_join = probe['Output'].index(join_attrs[0])
 	dict_hash_params = {
 		'node_name': join_node_name,
 		'hashtype': 'hashjoin',
 		'hashmethod': 'modulo',
 		'tup_per_bucket':4,
-		'build_attr':0,
-		'probe_attr':0,
+		'build_attr':build_join,
+		'probe_attr':probe_join,
 		'columns': ",".join(str_projection),
 		'add': ''
 	}
-	
-	
-	attrs = dict_query_plan['Hash Cond'][1:-1].split(" = ")
-	dict_hash_params['build_attr'] = dict_cols[attrs[0].replace('"', '')]
-	dict_hash_params['probe_attr'] = dict_cols[attrs[1].replace('"', '')]
-	
 	conf = constants.JOIN_NODE_TEMPLATE.format(**dict_hash_params)
-			
 	conf = conf + probe_conf_nodes + build_conf_nodes	
 
 	return tree_node, conf
