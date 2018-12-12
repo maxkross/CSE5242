@@ -1,9 +1,11 @@
 # CSE5542
 Python XML->Pythia
 
+This python program is compatible with versions of Python >= 3.6.
+
 SETUP
 
-1. Install required dependencies using `pip install -r requirements.txt`
+1. Install required dependencies using `pip3.6 install -r requirements.txt`
 
 EXECUTE
 
