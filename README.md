@@ -9,4 +9,10 @@ SETUP
 
 EXECUTE
 
-1. The main.py expects filepath as it's argument. Invoke the program as `python main.py queries\select.sql`
+1. The main.py expects filepath as it's argument. Invoke the program as `python main.py queries\select.sql
+
+Sample Pythia tables are in the /data/ directory as .tbl files
+
+The corresponding sample PostgreSQL tables are in /data/ as pg_pythia_bkp.sql
+
+The tables can be imported into a postgres database using the guide found on this page: https://www.postgresql.org/docs/9.1/backup-dump.html
