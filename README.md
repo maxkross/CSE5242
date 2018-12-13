@@ -1,5 +1,5 @@
-# CSE5542
-Python XML->Pythia
+# CSE5242
+PostgreSQL to Pythia .conf query conversion
 
 This python program is compatible with versions of Python >= 3.6.
 
