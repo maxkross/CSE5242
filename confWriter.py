@@ -10,7 +10,8 @@ dict_cols = {}
 
 def ScanWriter(dict_query_plan):
 	"""
-	Function that handles Sequential scan
+	handles Sequential scan
+	args: dict_query_plan - plan object containing sequential scan information
 	"""
 	global scan_counter, dict_config, dict_cols, counter
 	tree_node = {}
@@ -24,8 +25,10 @@ def ScanWriter(dict_query_plan):
 	# connects to the database
 	obj_conn = dbconn.getDBConn()
 
+	# fetches column name and its corresponding number in the order it is stored in the table
 	t_records = dbconn.executeSelect(obj_conn, constants.SQL_COLUMN_NUMBER.format(tables = "'"+dict_query_plan['Relation Name']+"'"))
 
+	# constructs column_name : column_number dictionary
 	dict_col = dict((dict_query_plan['Relation Name']+'.'+x, y) for x, y in t_records)
 	dict_cols = {**dict_cols, **dict_col}
 
@@ -35,6 +38,7 @@ def ScanWriter(dict_query_plan):
 			str_col = dict_query_plan['Relation Name']+'.'+str_col
 		str_projection.append(str(dict_col[str_col.replace('"', '')]))
 
+	# handles Filter clause
 	if "Filter" in dict_query_plan:
 		str_filter_conditions = dict_query_plan["Filter"][1:-1]
 		arr_conditions = str_filter_conditions.split('AND')
@@ -53,10 +57,13 @@ def ScanWriter(dict_query_plan):
 
 def FilterWriter(arr_conditions, dict_scan_node):
 	"""
-	Function that handles Filters
+	handles multiple Filters clauses
+	args: 	arr_conditions - array of filter clauses to be applied on the table
+			dict_query_plan - plan object containing sequential scan information
 	"""
 	global counter	
 	
+	# recursively construct filter plan object
 	if len(arr_conditions) == 1:
 		tree_node = {}
 		node_name = 'filter' + str(counter)		
@@ -104,20 +111,26 @@ def FilterWriter(arr_conditions, dict_scan_node):
 		return tree_node, conf
 
 def HashJoinWriter(dict_query_plan):
-	
+	"""
+	handles Hash join
+	args: 	dict_query_plan - plan object containing hash join information
+	"""
 	global join_counter, dict_cols
 	tree_node = {}
 
+	# generates the node name
 	join_node_name = 'join'+str(join_counter)
 	join_counter += 1
 
 	probe = dict_query_plan['Plans'][0]	
 	build = dict_query_plan['Plans'][1]
 
+	# identifies the build and probe table
 	tree_node['name'] = join_node_name
 	tree_node['probe'], probe_conf_nodes = GeneralWriter(probe)
 	tree_node['build'], build_conf_nodes = GeneralWriter(build)
 	
+	# extracts and maps projection columns numbers 
 	str_projection = []
 	for str_col in dict_query_plan["Output"]:
 		if str_col in probe['Output']:
@@ -146,6 +159,10 @@ def HashJoinWriter(dict_query_plan):
 	return tree_node, conf
 
 def GeneralWriter(dict_query_plan):
+	"""
+	entry point for query plan
+	args: 	dict_query_plan - plan object containing the query information
+	"""
 	plan_type = dict_query_plan["Node Type"]
 	if plan_type == "Seq Scan":
 		tree_node, conf_nodes = ScanWriter(dict_query_plan)
@@ -159,8 +176,12 @@ def GeneralWriter(dict_query_plan):
 		
 
 
-#Writes out the general structure of the file
+
 def BaseWriter(configFileName, dict_query_plan):
+	"""
+	writes out the general structure of the file
+	args: 	dict_query_plan - plan object containing the query information
+	"""
 	global dict_config
 
 	# read user conf file
@@ -175,9 +196,11 @@ def BaseWriter(configFileName, dict_query_plan):
 	conf_file.write('path = \"'+dict_config['path']+'\";\n')
 	conf_file.write('buffsize = 1048576;\n\n')
 
+	# constructs the query plan for pythia
 	root_node = {}
 	tree_node, conf_nodes = GeneralWriter(dict_query_plan)
 	
+	# writes the plan to the file
 	root_node["treeroot"] = tree_node
 	conf_file.write(conf_nodes)
 	conf_file.write(libconf.dumps(root_node).replace(' =', ':'))
